@@ -6,3 +6,8 @@ export interface BlockState {
   flagged?: boolean
   adjacentMines: number
 }
+
+export interface vListItem {
+  value: string
+  id: number
+}

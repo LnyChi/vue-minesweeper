@@ -9,7 +9,6 @@ const state = play.state
 <template>
   <div>
     Minesweeper
-
     <div p5>
       <div v-for="row, y in state" :key="y" flex="~" items-center justify-center>
         <MineBlock
