@@ -70,6 +70,8 @@ export class GamePlay {
   mineGenerated = false
 
   onClick(block: BlockState) {
+    if (this.isOver)
+      return
     if (!this.mineGenerated) {
       this.generateMines(this.state.value, block)
       this.mineGenerated = true
