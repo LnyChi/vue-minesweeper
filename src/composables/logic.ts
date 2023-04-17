@@ -5,25 +5,57 @@ const directions = [
 export class GamePlay {
   state = ref<BlockState[][]>([])
   isOver = false
-  constructor(public width: number, public height: number) {
+  constructor(public width: number, public height: number, public mines: number) {
     watchEffect(() =>
       this.checkGameState(),
     )
     this.reset()
   }
 
+  random(min: number, max: number) {
+    return Math.random() * (max - min) + min
+  }
+
+  randomInt(min: number, max: number) {
+    return Math.round(this.random(min, max))
+  }
+
+  countMines() {
+    const blocks = this.state.value.flat()
+    const mines = blocks.filter(block => block.mine).length
+    return mines
+  }
+
   // 布置炸弹
   generateMines(state: BlockState[][], initial: BlockState) {
-    for (const row of state) {
-      for (const block of row) {
-        if (Math.abs(initial.x - block.x) < 1)
-          continue
-        if (Math.abs(initial.y - block.y) < 1)
-          continue
-
-        block.mine = Math.random() < 0.3
-      }
+    const placeRandom = () => {
+      const x = this.randomInt(0, this.width - 1)
+      const y = this.randomInt(0, this.height - 1)
+      const block = state[y][x]
+      if (Math.abs(initial.x - block.x) < 1)
+        return false
+      if (Math.abs(initial.y - block.y) < 1)
+        return false
+      if (block.mine)
+        return false
+      block.mine = true
+      return true
     }
+    Array.from({ length: this.mines }, () => null).forEach(() => {
+      let p = false
+      while (!p) p = placeRandom()
+    })
+
+    // for (const row of state) {
+    //   for (const block of row) {
+    //     if (Math.abs(initial.x - block.x) < 1)
+    //       continue
+    //     if (Math.abs(initial.y - block.y) < 1)
+    //       continue
+
+    //     block.mine = Math.random() < 0.3
+    //   }
+    // }
     this.updateNumbers(state)
   }
 
@@ -33,13 +65,6 @@ export class GamePlay {
     const revealedBlocks = this.state.value.flat().filter(block => block.revealed).length
     const progress = Math.floor((revealedBlocks / totalBlocks) * 100)
     alert(`Progress: ${progress}%`)
-  }
-
-  // 有几个炸弹
-  countMines() {
-    const blocks = this.state.value.flat()
-    const mines = blocks.filter(block => block.mine).length
-    alert(`There are ${mines} mines.`)
   }
 
   updateNumbers(state: BlockState[][]) {
